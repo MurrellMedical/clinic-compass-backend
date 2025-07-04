@@ -18,21 +18,22 @@ app.get("/", (req, res) => {
 
 // ZIP code endpoint
 app.post('/api/lookup', async (req, res) => {
-  const zip = req.body.zip;
+  const zip = req.body.zip?.trim();
 
   try {
-    const clinics = await Clinic.find({ zip: zip.trim() });
+    const clinics = await Clinic.find({ zip });
 
     if (clinics.length === 0) {
-      return res.status(404).json({ message: 'No clinics found' });
+      return res.status(404).json({ message: 'No clinics found.' });
     }
 
-    res.json(clinics);
+    res.status(200).json(clinics);
   } catch (err) {
-    console.error('Error fetching clinics:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error fetching clinics:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 
