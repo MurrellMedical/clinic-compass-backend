@@ -17,8 +17,24 @@ app.get("/", (req, res) => {
 });
 
 // ZIP code endpoint
-app.get("/api/clinics/:zip", async (req, res) => {
-  const zip = req.params.zip;
+app.post('/api/lookup', async (req, res) => {
+  const zip = req.body.zip;
+
+  try {
+    const clinics = await Clinic.find({ zip: zip.trim() });
+
+    if (clinics.length === 0) {
+      return res.status(404).json({ message: 'No clinics found' });
+    }
+
+    res.json(clinics);
+  } catch (err) {
+    console.error('Error fetching clinics:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 
   try {
     const clinics = await Clinic.find({ zip });
@@ -32,7 +48,7 @@ app.get("/api/clinics/:zip", async (req, res) => {
     console.error("Error fetching clinics:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
-});
+
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
